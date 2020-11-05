@@ -36,7 +36,7 @@ struct DirectoryReader {
 
  private:
    DIR* mDirectory;
-   struct dirent64 mEntry;
+   struct dirent64* mEntry;
    struct dirent64* mResult;
    Result<bool> mValid;
 };

@@ -24,7 +24,7 @@ fi
 %build
 # SKIP_BUILD_RPATH, CMAKE_SKIP_BUILD_RPATH,
 cd %{name}/
-PATH=/usr/local/gcc/bin:/usr/local/probe/bin:$PATH
+PATH=/usr/local/probe/bin:$PATH
 rm -f  CMakeCache.txt
 cd thirdparty
 unzip -u gtest-1.7.0.zip
@@ -33,12 +33,11 @@ cd ..
 
 if [ "%{buildtype}" == "-DUSE_LR_DEBUG=OFF"  ]; then
    cmake -DVERSION:STRING=%{version} \
-      -DCMAKE_CXX_COMPILER_ARG1:STRING=' -std=c++14 -Wall -fPIC -Ofast -m64 -isystem/usr/local/gcc/include -isystem/usr/local/probe/include -Wl,-rpath -Wl,. -Wl,-rpath -Wl,/usr/local/probe/lib -Wl,-rpath -Wl,/usr/local/gcc/lib64 ' \
-      -DCMAKE_BUILD_TYPE:STRING=Release -DBUILD_SHARED_LIBS:BOOL=ON -DCMAKE_CXX_COMPILER=/usr/local/gcc/bin/g++
+      -DCMAKE_CXX_COMPILER_ARG1:STRING=' -std=c++14 -Wall -fPIC -Ofast -m64 -isystem/usr/local/probe/include -Wl,-rpath -Wl,. -Wl,-rpath -Wl,/usr/local/probe/lib ' \
+      -DCMAKE_BUILD_TYPE:STRING=Release -DBUILD_SHARED_LIBS:BOOL=ON
 elif [ "%{buildtype}" == "-DUSE_LR_DEBUG=ON"  ]; then
    cmake -DUSE_LR_DEBUG=ON -DVERSION:STRING=%{version} \
-      -DCMAKE_CXX_COMPILER_ARG1:STRING=' -std=c++14 -Wall -Werror -g -gdwarf-2 --coverage -O0 -fPIC -m64 -isystem/usr/local/gcc/include -isystem/usr/local/probe/include -Wl,-rpath -Wl,. -Wl,-rpath -Wl,/usr/local/probe/lib -Wl,-rpath -Wl,/usr/local/gcc/lib64 ' \
-      -DCMAKE_CXX_COMPILER=/usr/local/gcc/bin/g++
+      -DCMAKE_CXX_COMPILER_ARG1:STRING=' -std=c++14 -Wall -Werror -g -gdwarf-2 --coverage -O0 -fPIC -m64 -isystem/usr/local/probe/include -Wl,-rpath -Wl,. -Wl,-rpath -Wl,/usr/local/probe/lib ' 
 else
    echo "Unknown buildtype"
    exit 1
@@ -46,9 +45,9 @@ fi
 
 make VERSION=1 -j6
 sudo ./UnitTestRunner
-if [ "%{buildtype}" == "-DUSE_LR_DEBUG=ON"  ]; then
-   /usr/local/probe/bin/CodeCoverage.py
-fi
+#if [ "%{buildtype}" == "-DUSE_LR_DEBUG=ON"  ]; then
+#   /usr/local/probe/bin/CodeCoverage.py
+#fi
 
 mkdir -p $RPM_BUILD_ROOT/usr/local/probe/lib
 cp -rfd lib%{name}.so* $RPM_BUILD_ROOT/usr/local/probe/lib
